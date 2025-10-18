@@ -6,6 +6,7 @@ import re
 import tkinter as tk
 from tkinter import messagebox
 from threading import Thread  # Use threads to prevent the GUI from freezing
+from datetime import datetime
 
 # --- Utility Functions ---
 
@@ -56,7 +57,7 @@ def start_download_process(url, status_callback):
         html_content = response.text
         soup = BeautifulSoup(html_content, "html.parser")
 
-        # 1. Get the subfolder name from <p class="eigo wf-a">
+        # --- 1. Get Member Name and Define Base Folder ---
         p_tag = soup.find("p", class_="eigo wf-a")
         if not p_tag:
             status_callback(
@@ -76,14 +77,18 @@ def start_download_process(url, status_callback):
             status_callback("Error: Sanitized member name is empty.")
             return
 
-        # Define the final target directory (e.g., images/IshimoriRika)
-        target_folder = main_image_folder / member_subfolder_name
+        # --- 2. Get Date Folder Name (YYMMDD) ---
+        # Get the current date and format it as YYMMDD (e.g., 251018)
+        date_folder_name = datetime.now().strftime("%y%m%d")
 
-        # 2. Create the target directory
+        # Define the final target directory: images/IshimoriRika/251018
+        target_folder = main_image_folder / member_subfolder_name / date_folder_name
+
+        # 3. Create the full nested directory structure
         target_folder.mkdir(parents=True, exist_ok=True)
         status_callback(f"Target folder set: {target_folder.as_posix()}")
 
-        # 3. Find the main article container
+        # 4. Find the main article container
         article_box = soup.find("div", class_="box-article")
 
         if article_box:
@@ -102,7 +107,7 @@ def start_download_process(url, status_callback):
                     original_filename = Path(url_path).name
                     sanitized_name = sanitize_name(original_filename)
 
-                    # Create the final path for saving the file
+                    # Create the final path for saving the file inside the new subfolder
                     filename = target_folder / f"{i+1:02d}_{sanitized_name}"
 
                     if not filename.suffix:

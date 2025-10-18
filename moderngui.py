@@ -3,10 +3,12 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from pathlib import Path
 import re
-import sys
+
+# import sys
 from datetime import datetime
 from threading import Thread
-import tkinter as tk
+
+# import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 
